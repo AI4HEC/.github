@@ -1,0 +1,106 @@
+name: Update Repository List
+
+on:
+  schedule:
+    # Run every 24 hours at 00:00 UTC
+    - cron: '0 0 * * *'
+  workflow_dispatch: # Allow manual trigger
+
+permissions:
+  contents: write
+
+jobs:
+  update-readme:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update repository list
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            
+            // Fetch all public repositories in the organization
+            const repos = await github.rest.repos.listForOrg({
+              org: 'AI4HEC',
+              type: 'public',
+              sort: 'updated',
+              per_page: 100
+            });
+            
+            // Filter out the .github repository itself
+            const filteredRepos = repos.data.filter(repo => repo.name !== '.github');
+            
+            // Generate repository list markdown
+            let repoListMarkdown = '';
+            
+            if (filteredRepos.length === 0) {
+              repoListMarkdown = '*No public repositories yet.*\n';
+            } else {
+              filteredRepos.forEach(repo => {
+                const name = repo.name;
+                const description = repo.description || 'No description provided.';
+                const url = repo.html_url;
+                const language = repo.language || 'N/A';
+                const stars = repo.stargazers_count;
+                
+                repoListMarkdown += `### [${name}](${url})\n`;
+                repoListMarkdown += `${description}\n\n`;
+                repoListMarkdown += `- **Language**: ${language}\n`;
+                repoListMarkdown += `- **Stars**: ⭐ ${stars}\n`;
+                repoListMarkdown += `- **Last Updated**: ${new Date(repo.updated_at).toLocaleDateString()}\n\n`;
+              });
+            }
+            
+            // Read current README.md
+            const readmePath = 'README.md';
+            let readmeContent = fs.readFileSync(readmePath, 'utf8');
+            
+            // Define markers
+            const startMarker = '<!-- REPO-LIST-START -->';
+            const endMarker = '<!-- REPO-LIST-END -->';
+            
+            // Check if markers exist
+            if (!readmeContent.includes(startMarker) || !readmeContent.includes(endMarker)) {
+              console.log('Markers not found in README.md');
+              return;
+            }
+            
+            // Replace content between markers
+            const startIndex = readmeContent.indexOf(startMarker) + startMarker.length;
+            const endIndex = readmeContent.indexOf(endMarker);
+            
+            const newContent = readmeContent.substring(0, startIndex) + 
+                             '\n' + repoListMarkdown + 
+                             readmeContent.substring(endIndex);
+            
+            // Check if content has changed
+            if (newContent === readmeContent) {
+              console.log('No changes detected in repository list.');
+              return;
+            }
+            
+            // Write updated content
+            fs.writeFileSync(readmePath, newContent);
+            console.log('README.md updated successfully!');
+            
+            // Configure git
+            await exec.exec('git', ['config', 'user.name', 'github-actions[bot]']);
+            await exec.exec('git', ['config', 'user.email', 'github-actions[bot]@users.noreply.github.com']);
+            
+            // Commit and push changes
+            await exec.exec('git', ['add', 'README.md']);
+            
+            try {
+              await exec.exec('git', ['commit', '-m', '🔄 Auto-update repository list']);
+              await exec.exec('git', ['push']);
+              console.log('Changes committed and pushed!');
+            } catch (error) {
+              console.log('No changes to commit or push failed.');
+            }
