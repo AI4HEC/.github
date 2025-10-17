@@ -59,7 +59,7 @@ jobs:
             }
             
             // Read current README.md
-            const readmePath = 'README.md';
+            const readmePath = 'profile/README.md';
             let readmeContent = fs.readFileSync(readmePath, 'utf8');
             
             // Define markers
@@ -95,7 +95,7 @@ jobs:
             await exec.exec('git', ['config', 'user.email', 'github-actions[bot]@users.noreply.github.com']);
             
             // Commit and push changes
-            await exec.exec('git', ['add', 'README.md']);
+            await exec.exec('git', ['add', 'profile/README.md']);
             
             try {
               await exec.exec('git', ['commit', '-m', '🔄 Auto-update repository list']);

@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 💬 Ask a Question
+    url: https://github.com/orgs/AI4HEC/discussions
+    about: Ask questions and discuss with the community
+  - name: 🔒 Report a Security Vulnerability
+    url: https://github.com/AI4HEC/.github/security/policy
+    about: Please report security issues responsibly
