@@ -16,7 +16,27 @@ We aim to:
 ## 📚 Current Repositories
 
 <!-- REPO-LIST-START -->
-*Repository list will be automatically updated by GitHub Actions.*
+### [AI4HEC](https://github.com/AI4HEC/AI4HEC)
+About the project!
+
+- **Language**: HTML
+- **Stars**: ⭐ 0
+- **Last Updated**: 10/17/2025
+
+### [tmd_fw](https://github.com/AI4HEC/tmd_fw)
+Train Mounted Device - Firmware
+
+- **Language**: Makefile
+- **Stars**: ⭐ 0
+- **Last Updated**: 8/2/2025
+
+### [ad_pi_fw](https://github.com/AI4HEC/ad_pi_fw)
+Speaker array driver, Rapsberry-pi firmware
+
+- **Language**: Python
+- **Stars**: ⭐ 0
+- **Last Updated**: 7/9/2025
+
 <!-- REPO-LIST-END -->
 
 ## 🤝 Contributing
